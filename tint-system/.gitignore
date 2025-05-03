@@ -1,9 +1,11 @@
 # Python
 __pycache__/
 *.py[cod]
-*.class
+*$py.class
 *.so
 .Python
+venv/
+env/
 build/
 develop-eggs/
 dist/
@@ -15,19 +17,11 @@ lib64/
 parts/
 sdist/
 var/
-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 
-# Virtual Environment
-venv/
-ENV/
-env/
-env.bak/
-venv.bak/
-
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
@@ -35,3 +29,11 @@ venv.bak/
 
 # Environment variables
 .env
+.env.local
+
+# Logs
+*.log
+
+# System Files
+.DS_Store
+Thumbs.db
