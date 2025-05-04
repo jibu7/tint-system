@@ -1,23 +1,25 @@
 // frontend/src/types/color.ts
 
-// Matches backend schemas.ColorantDetail
 export interface IColorantDetail {
-  name: string;
+  colorant_name: string;
   weight_g: number;
   volume_ml: number;
 }
 
-// Matches backend schemas.ColorFormulaResponse
 export interface IColorFormula {
+  id: number;
   color_code: string;
-  color_series?: string | null;
-  color_card?: string | null;
-  paint_type?: string | null;
-  base_paint?: string | null;
-  colorants: IColorantDetail[];
+  colorant_type?: string;
+  color_series?: string;
+  color_card?: string;
+  paint_type?: string;
+  base_paint?: string;
+  packaging_spec?: string;
+  colorant_details: IColorantDetail[];
+  [key: string]: string | number | boolean | undefined | IColorantDetail[] | null;
 }
 
-// For handling API error responses
 export interface IApiError {
-  detail: string; // FastAPI often uses 'detail' for errors
+  detail: string;
+  [key: string]: string | number | boolean | undefined | null;
 }

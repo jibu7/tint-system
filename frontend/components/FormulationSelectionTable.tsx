@@ -1,0 +1,98 @@
+'use client';
+
+import React, { useState } from 'react';
+import { IColorFormula } from '@/types/color';
+
+interface FormulationSelectionTableProps {
+  formulations: IColorFormula[];
+  onSelect: (formulation: IColorFormula) => void;
+}
+
+interface FilterOptions {
+  [key: string]: Set<string>;
+}
+
+export default function FormulationSelectionTable({ formulations, onSelect }: FormulationSelectionTableProps) {
+  const [filters, setFilters] = useState<Record<string, string>>({});
+  
+  // Extract unique values for each attribute to build filters
+  const filterOptions = formulations.reduce<FilterOptions>((options, form) => {
+    Object.keys(form).forEach(key => {
+      if (key !== 'id' && key !== 'colorant_details' && key !== 'color_code') {
+        if (!options[key]) options[key] = new Set<string>();
+        if (form[key]) options[key].add(String(form[key]));
+      }
+    });
+    return options;
+  }, {});
+  
+  // Apply filters to formulations
+  const filteredFormulations = formulations.filter(form => {
+    return Object.entries(filters).every(([key, value]) => 
+      !value || form[key] === value
+    );
+  });
+
+  return (
+    <div className="font-sans">
+      <div className="flex flex-wrap gap-4 mb-6 p-2">
+        {Object.entries(filterOptions).map(([key, values]) => (
+          <div key={key} className="flex flex-col">
+            <label className="text-sm font-medium mb-1.5 capitalize text-gray-700">
+              {key.replace(/_/g, ' ')}
+            </label>
+            <select
+              value={filters[key] || ''}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters({...filters, [key]: e.target.value})}
+              className="border border-gray-300 rounded-md px-3 py-2 text-base bg-white text-gray-800 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All</option>
+              {Array.from(values).map(value => (
+                <option key={value} value={value}>{value}</option>
+              ))}
+            </select>
+          </div>
+        ))}
+      </div>
+
+      <div className="overflow-x-auto border border-gray-300 rounded-lg shadow-sm">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Base Paint</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Paint Type</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Colorant Type</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Packaging</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Action</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredFormulations.map((formulation) => (
+              <tr 
+                key={formulation.id}
+                className="hover:bg-blue-50 cursor-pointer"
+                onClick={() => onSelect(formulation)}
+              >
+                <td className="px-6 py-3 text-base text-gray-800 whitespace-nowrap">{formulation.base_paint}</td>
+                <td className="px-6 py-3 text-base text-gray-800 whitespace-nowrap">{formulation.paint_type}</td>
+                <td className="px-6 py-3 text-base text-gray-800 whitespace-nowrap">{formulation.colorant_type}</td>
+                <td className="px-6 py-3 text-base text-gray-800 whitespace-nowrap">{formulation.packaging_spec}</td>
+                <td className="px-6 py-3 whitespace-nowrap">
+                  <button
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md text-sm shadow-sm"
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      onSelect(formulation);
+                    }}
+                  >
+                    Select
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
