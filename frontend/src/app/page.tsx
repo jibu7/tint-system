@@ -85,16 +85,22 @@ export default function HomePage() {
       const data: IColorFormula = await response.json();
       setResult(data);
 
-    } catch (err: any) {
+    } catch (err: unknown) { // Changed from any to unknown
       console.error("Search failed:", err);
       
-      // More verbose error reporting
-      if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
-        setError('Network error: Could not connect to the API server. Please check that the backend is running and accessible.');
-      } else {
-        setError(err.message || 'An unexpected error occurred while fetching data.');
+      // Type guard to safely access error properties
+      let errorMessage = 'An unexpected error occurred while fetching data.';
+      if (err instanceof Error) {
+          if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
+              errorMessage = 'Network error: Could not connect to the API server. Please check that the backend is running and accessible.';
+          } else {
+              errorMessage = err.message;
+          }
+      } else if (typeof err === 'string') {
+          errorMessage = err;
       }
-      
+
+      setError(errorMessage);
       setResult(null); // Clear results on error
     } finally {
       setIsLoading(false);
@@ -169,7 +175,7 @@ export default function HomePage() {
 
                {/* Colorants Table */}
                <h3 className="text-xl font-semibold mb-3 text-gray-700">Colorants Required:</h3>
-               {result.colorants && result.colorants.length > 0 ? (
+               {result.colorant_details && result.colorant_details.length > 0 ? (
                   <div className="overflow-x-auto rounded-md border border-gray-300">
                      <table className="min-w-full divide-y divide-gray-200">
                      <thead className="bg-gray-100">
@@ -180,9 +186,9 @@ export default function HomePage() {
                        </tr>
                      </thead>
                      <tbody className="bg-white divide-y divide-gray-200">
-                       {result.colorants.map((colorant: IColorantDetail, index: number) => (
+                       {result.colorant_details.map((colorant: IColorantDetail, index: number) => (
                          <tr key={index} className="hover:bg-blue-50 transition duration-150 ease-in-out">
-                           <td className="px-5 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{colorant.name}</td>
+                           <td className="px-5 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{colorant.colorant_name}</td>
                            <td className="px-5 py-3 whitespace-nowrap text-sm text-gray-700 font-mono">{formatWeight(colorant.weight_g)}</td>
                            <td className="px-5 py-3 whitespace-nowrap text-sm text-gray-700 font-mono">{formatVolume(colorant.volume_ml)}</td>
                          </tr>
@@ -198,13 +204,13 @@ export default function HomePage() {
 
            {/* Initial state or No Results Found */}
            {!isLoading && !error && !result && searchedTermDisplay && (
-             <p className="text-center text-gray-500 pt-10">No results found for "{searchedTermDisplay}".</p>
+             <p className="text-center text-gray-500 pt-10">No results found for &quot;{searchedTermDisplay}&quot;.</p>
            )}
-            {!isLoading && !error && !result && !searchedTermDisplay && (
+           {!isLoading && !error && !result && !searchedTermDisplay && (
              <p className="text-center text-gray-400 pt-10">Enter a color code above and click Search.</p>
            )}
-        </div>
-      </div>
+        </div> {/* Closing tag for Status/Results Area div */}
+      </div> {/* Closing tag for the main content div */}
     </main>
-  );
+  ); // Closing tag for main element
 }
