@@ -174,10 +174,6 @@ export default function TestComponentsPage() {
               </table>
             </div>
           )}
-
-          <div className="bg-gray-50 p-5 rounded-md border border-gray-200">
-            <pre className="text-sm text-gray-800 font-mono whitespace-pre-wrap">{JSON.stringify(selectedFormulation, null, 2)}</pre>
-          </div>
         </div>
       )}
     </div>
