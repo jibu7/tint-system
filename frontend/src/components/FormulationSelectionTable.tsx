@@ -18,9 +18,13 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
   // Extract unique values for each attribute to build filters
   const filterOptions = formulations.reduce<FilterOptions>((options, form) => {
     Object.keys(form).forEach(key => {
-      if (key !== 'id' && key !== 'colorant_details' && key !== 'color_code') {
+      // Exclude non-filterable or internal keys
+      if (!['id', 'colorant_details', 'color_code', 'created_at', 'updated_at', 'color_rgb'].includes(key)) {
         if (!options[key]) options[key] = new Set<string>();
-        if (form[key]) options[key].add(form[key].toString());
+        // Ensure value exists and is stringifiable before adding
+        if (form[key] !== null && form[key] !== undefined) {
+          options[key].add(form[key]!.toString());
+        }
       }
     });
     return options;
@@ -61,7 +65,7 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
             <tr>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Base Paint</th>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Paint Type</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Colorant Type</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Color</th>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Packaging</th>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Action</th>
             </tr>
@@ -75,7 +79,20 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
               >
                 <td className="px-6 py-3 text-base text-gray-800 whitespace-nowrap">{formulation.base_paint}</td>
                 <td className="px-6 py-3 text-base text-gray-800 whitespace-nowrap">{formulation.paint_type}</td>
-                <td className="px-6 py-3 text-base text-gray-800 whitespace-nowrap">{formulation.colorant_type}</td>
+                <td className="px-6 py-3 whitespace-nowrap">
+                  {formulation.color_rgb?.hex ? (
+                    <div 
+                      className="w-6 h-6 rounded border border-gray-300"
+                      style={{ backgroundColor: formulation.color_rgb.hex }}
+                      title={`HEX: ${formulation.color_rgb.hex} | RGB: (${formulation.color_rgb.rgb.r}, ${formulation.color_rgb.rgb.g}, ${formulation.color_rgb.rgb.b})`}
+                    ></div>
+                  ) : (
+                    <div 
+                      className="w-6 h-6 rounded border border-gray-300 bg-gray-200"
+                      title="Color data not available"
+                    ></div>
+                  )}
+                </td>
                 <td className="px-6 py-3 text-base text-gray-800 whitespace-nowrap">{formulation.packaging_spec}</td>
                 <td className="px-6 py-3 whitespace-nowrap">
                   <button

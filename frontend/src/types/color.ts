@@ -16,7 +16,11 @@ export interface IColorFormula {
   base_paint?: string;
   packaging_spec?: string;
   colorant_details: IColorantDetail[];
-  [key: string]: string | number | boolean | undefined | IColorantDetail[] | null;
+  color_rgb?: {
+    rgb: { r: number; g: number; b: number };
+    hex: string;
+  } | null;
+  [key: string]: string | number | boolean | undefined | IColorantDetail[] | object | null;
 }
 
 export interface IApiError {

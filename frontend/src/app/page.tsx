@@ -14,6 +14,7 @@ export default function TestComponentsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [packagingSize, setPackagingSize] = useState<number>(1);
 
   const handleFormulationSelect = (formulation: IColorFormula) => {
     console.log('Selected formulation:', formulation);
@@ -22,6 +23,11 @@ export default function TestComponentsPage() {
     setTimeout(() => {
       document.getElementById('selection-results')?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
+  };
+
+  const handlePackagingSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value) || 1;
+    setPackagingSize(Math.max(0.001, value)); // Ensure value is at least 0.001
   };
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -176,8 +182,24 @@ export default function TestComponentsPage() {
         <div id="selection-results" className="mt-8 sm:mt-12 mb-8 bg-white rounded-xl shadow-lg p-4 sm:p-8 border border-gray-100 scroll-mt-6 animate-fadeIn">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 border-b pb-3">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-0">Selected Formulation</h2>
-            <div className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full self-start">
-              {selectedFormulation.color_code}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <label htmlFor="packagingSize" className="text-sm font-medium text-gray-700">
+                  Packaging Size (L):
+                </label>
+                <input
+                  id="packagingSize"
+                  type="number"
+                  min="0.001"
+                  step="0.001"
+                  value={packagingSize}
+                  onChange={handlePackagingSizeChange}
+                  className="w-24 px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
+                />
+              </div>
+              <div className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full self-start">
+                {selectedFormulation.color_code}
+              </div>
             </div>
           </div>
 
@@ -201,6 +223,17 @@ export default function TestComponentsPage() {
                   <div className="text-xs font-bold text-gray-600 uppercase mb-1">Paint Type</div>
                   <div className="text-sm text-gray-700">{selectedFormulation.paint_type}</div>
                 </div>
+                {/* Add Color Swatch for mobile */}
+                {selectedFormulation.color_rgb?.hex && (
+                  <div className="mb-4">
+                    <div className="text-xs font-bold text-gray-600 uppercase mb-1">Color</div>
+                    <div 
+                      className="w-8 h-8 rounded border border-gray-300 inline-block"
+                      style={{ backgroundColor: selectedFormulation.color_rgb.hex }}
+                      title={`HEX: ${selectedFormulation.color_rgb.hex} | RGB: (${selectedFormulation.color_rgb.rgb.r}, ${selectedFormulation.color_rgb.rgb.g}, ${selectedFormulation.color_rgb.rgb.b})`}
+                    ></div>
+                  </div>
+                )}
                 <button 
                   className="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
                 >
@@ -215,6 +248,8 @@ export default function TestComponentsPage() {
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Base Paint</th>
                       <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Paint Type</th>
+                      {/* Add Color Header */}
+                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Color</th>
                       <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Action</th>
                     </tr>
                   </thead>
@@ -222,6 +257,18 @@ export default function TestComponentsPage() {
                     <tr className="bg-white">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{selectedFormulation.base_paint}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{selectedFormulation.paint_type}</td>
+                      {/* Add Color Swatch cell */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {selectedFormulation.color_rgb?.hex ? (
+                          <div 
+                            className="w-6 h-6 rounded border border-gray-300 inline-block"
+                            style={{ backgroundColor: selectedFormulation.color_rgb.hex }}
+                            title={`HEX: ${selectedFormulation.color_rgb.hex} | RGB: (${selectedFormulation.color_rgb.rgb.r}, ${selectedFormulation.color_rgb.rgb.g}, ${selectedFormulation.color_rgb.rgb.b})`}
+                          ></div>
+                        ) : (
+                          <span className="text-sm text-gray-500">N/A</span> // Fallback if no color
+                        )}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <button 
                           className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
@@ -244,6 +291,9 @@ export default function TestComponentsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                 </svg>
                 <h3 className="font-semibold text-lg text-gray-800">Colorant Composition</h3>
+                <span className="ml-2 text-sm text-gray-600">
+                  (Adjusted for {packagingSize}L)
+                </span>
               </div>
               
               {/* Mobile view - cards for each colorant */}
@@ -254,11 +304,11 @@ export default function TestComponentsPage() {
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
                         <span className="text-xs text-gray-500">Weight:</span>
-                        <span className="ml-1 font-mono">{detail.weight_g.toFixed(5)} g</span>
+                        <span className="ml-1 font-mono">{(detail.weight_g * packagingSize).toFixed(5)} g</span>
                       </div>
                       <div>
                         <span className="text-xs text-gray-500">Volume:</span>
-                        <span className="ml-1 font-mono">{detail.volume_ml.toFixed(5)} ml</span>
+                        <span className="ml-1 font-mono">{(detail.volume_ml * packagingSize).toFixed(5)} ml</span>
                       </div>
                     </div>
                   </div>
@@ -280,8 +330,8 @@ export default function TestComponentsPage() {
                       {selectedFormulation.colorant_details.map((detail, index) => (
                         <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{detail.colorant_name}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700">{detail.weight_g.toFixed(5)}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700">{detail.volume_ml.toFixed(5)}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700">{(detail.weight_g * packagingSize).toFixed(5)}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700">{(detail.volume_ml * packagingSize).toFixed(5)}</td>
                         </tr>
                       ))}
                     </tbody>
