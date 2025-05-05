@@ -9,6 +9,10 @@ import models
 import schemas
 from database import get_session
 
+# Helper function to convert RGB to HEX
+def rgb_to_hex(r, g, b):
+    return f'#{r:02x}{g:02x}{b:02x}'
+
 app = FastAPI(title="Color Code Search API (Relational)")
 
 # Configure CORS
@@ -27,86 +31,93 @@ app.add_middleware(
 )
 
 @app.get("/api/search/{color_code}",
-         summary="Search Color Formula by Code",
+         response_model=List[schemas.FormulationResponseWithColor],
+         summary="Search Color Formula by Code with RGB",
          tags=["Color Search"])
 async def search_color_code(color_code: str, db: AsyncSession = Depends(get_session)):
     """
-    Retrieves details for a specific color code, including its required colorants,
-    from the relational database structure.
+    Retrieves details for a specific color code, including its required colorants
+    and RGB/HEX values, from the relational database structure.
     """
     try:
         async with db as session:
-            # Log the query we're attempting
             print(f"Searching for color code: {color_code}")
-            
-            # Check if the Formulation table and model match
-            print(f"Table name: {models.Formulation.__tablename__}")
-            
-            try:
-                query = select(models.Formulation).where(models.Formulation.color_code == color_code)
-                result = await session.execute(query)
-                formulations = result.scalars().all()  # Get ALL matching formulations
-                
-                print(f"Found {len(formulations)} matching formulations")
-            except Exception as db_error:
-                print(f"Database query error: {str(db_error)}")
-                raise HTTPException(status_code=500, 
-                                   detail=f"Error querying formulations: {str(db_error)}")
-            
+
+            # Fetch formulations
+            formulation_query = select(models.Formulation).where(models.Formulation.color_code == color_code)
+            formulation_result = await session.execute(formulation_query)
+            formulations = formulation_result.scalars().all()
+
+            print(f"Found {len(formulations)} matching formulations")
+
             if not formulations:
                 raise HTTPException(status_code=404, detail=f"Color code '{color_code}' not found.")
-            
-            # Return all formulations with their details
+
             response_data = []
             for formulation in formulations:
                 try:
-                    # Print formulation attributes to debug
-                    print(f"Processing formulation ID: {formulation.id}, attributes: {vars(formulation)}")
-                    
+                    print(f"Processing formulation ID: {formulation.id}")
+
+                    # Fetch colorant details for the current formulation
                     details_query = select(models.ColorantDetail).where(
                         models.ColorantDetail.formulation_id == formulation.id
                     )
                     details_result = await session.execute(details_query)
                     colorant_details = details_result.scalars().all()
-                    
-                    print(f"Found {len(colorant_details)} colorant details")
-                    
-                    # Extract data using a safer approach
-                    formulation_data = {
-                        "id": getattr(formulation, "id", None),
-                        "color_code": getattr(formulation, "color_code", None),
-                        "colorant_type": getattr(formulation, "colorant_type", None),
-                        "color_series": getattr(formulation, "color_series", None),
-                        "color_card": getattr(formulation, "color_card", None),
-                        "paint_type": getattr(formulation, "paint_type", None),
-                        "base_paint": getattr(formulation, "base_paint", None),
-                        "packaging_spec": getattr(formulation, "packaging_spec", None),
-                        "colorant_details": []
-                    }
-                    
-                    # Process colorant details with safer approach
-                    for detail in colorant_details:
-                        detail_data = {
-                            "colorant_name": getattr(detail, "colorant_name", None),
-                            "weight_g": float(getattr(detail, "weight_g", 0)) if getattr(detail, "weight_g", None) else None,
-                            "volume_ml": float(getattr(detail, "volume_ml", 0)) if getattr(detail, "volume_ml", None) else None
-                        }
-                        formulation_data["colorant_details"].append(detail_data)
-                    
+                    print(f"Found {len(colorant_details)} colorant details for formulation {formulation.id}")
+
+                    # Fetch RGB value for the current formulation's color code and card
+                    rgb_data = None
+                    if formulation.color_code and formulation.color_card:
+                        rgb_query = select(models.ColorRgbValue).where(
+                            models.ColorRgbValue.color_code == formulation.color_code,
+                            models.ColorRgbValue.color_card == formulation.color_card
+                        ).limit(1) # Expecting only one match per code/card combo
+                        rgb_result = await session.execute(rgb_query)
+                        color_rgb_value = rgb_result.scalar_one_or_none()
+
+                        if color_rgb_value:
+                            print(f"Found RGB data for {formulation.color_code} / {formulation.color_card}")
+                            rgb_dict = schemas.RgbColor(r=color_rgb_value.red, g=color_rgb_value.green, b=color_rgb_value.blue)
+                            hex_value = rgb_to_hex(color_rgb_value.red, color_rgb_value.green, color_rgb_value.blue)
+                            rgb_data = {"rgb": rgb_dict.dict(), "hex": hex_value}
+                        else:
+                            print(f"No RGB data found for {formulation.color_code} / {formulation.color_card}")
+                    else:
+                         print(f"Skipping RGB lookup for formulation {formulation.id} due to missing color_code or color_card")
+
+
+                    # Prepare formulation data including RGB
+                    formulation_data = schemas.FormulationResponseWithColor(
+                        id=formulation.id,
+                        color_code=formulation.color_code,
+                        colorant_type=formulation.colorant_type,
+                        color_series=formulation.color_series,
+                        color_card=formulation.color_card,
+                        paint_type=formulation.paint_type,
+                        base_paint=formulation.base_paint,
+                        packaging_spec=formulation.packaging_spec,
+                        created_at=formulation.created_at,
+                        updated_at=formulation.updated_at,
+                        colorant_details=[
+                            schemas.ColorantDetailBase(
+                                colorant_name=detail.colorant_name,
+                                weight_g=float(detail.weight_g) if detail.weight_g is not None else None,
+                                volume_ml=float(detail.volume_ml) if detail.volume_ml is not None else None
+                            )
+                            for detail in colorant_details
+                        ],
+                        color_rgb=rgb_data
+                    )
+
                     response_data.append(formulation_data)
+
                 except Exception as e:
                     print(f"Error processing formulation {getattr(formulation, 'id', 'unknown')}: {str(e)}")
-                    # Instead of skipping, include error info
-                    error_data = {
-                        "id": getattr(formulation, "id", None),
-                        "color_code": getattr(formulation, "color_code", None),
-                        "error": str(e)
-                    }
-                    response_data.append(error_data)
-            
+                    pass
+
             return response_data
     except HTTPException:
-        # Re-raise HTTP exceptions
         raise
     except Exception as e:
         print(f"Unhandled error in search_color_code: {str(e)}")
@@ -144,12 +155,12 @@ async def verify_models():
     """Test endpoint to verify model names against database tables"""
     try:
         from sqlalchemy import inspect
-        from database import engine_sync  # You may need to add a sync engine to your database.py
+        from database import engine_sync
         
         inspector = inspect(engine_sync)
         tables = inspector.get_table_names()
         
-        expected_tables = ["formulations", "colorant_details", "colorants"]
+        expected_tables = ["formulations", "colorant_details", "colorants", "color_rgb_values"]
         missing_tables = [table for table in expected_tables if table not in tables]
         
         model_info = {
@@ -157,7 +168,8 @@ async def verify_models():
             "Missing expected tables": missing_tables if missing_tables else "None",
             "Model mappings": {
                 "Formulation": models.Formulation.__tablename__,
-                "ColorantDetail": models.ColorantDetail.__tablename__
+                "ColorantDetail": models.ColorantDetail.__tablename__,
+                "ColorRgbValue": models.ColorRgbValue.__tablename__
             }
         }
         

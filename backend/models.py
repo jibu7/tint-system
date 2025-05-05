@@ -60,3 +60,23 @@ class ColorantDetail(Base):
 
     def __repr__(self):
         return f"<ColorantDetail(formulation_id={self.formulation_id}, colorant_name='{self.colorant_name}', weight={self.weight_g}g)>"
+
+class ColorRgbValue(Base):
+    __tablename__ = "color_rgb_values"
+
+    id = Column(Integer, primary_key=True, index=True)
+    color_code = Column(String(50), nullable=False)
+    color_card = Column(String(50), nullable=False)
+    red = Column(Integer, nullable=False)
+    green = Column(Integer, nullable=False)
+    blue = Column(Integer, nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        UniqueConstraint('color_code', 'color_card', name='color_rgb_values_color_code_card_key'),
+        Index('idx_color_rgb_values_code_card', 'color_code', 'color_card'), # Add index for faster lookups
+    )
+
+    def __repr__(self):
+        return f"<ColorRgbValue(id={self.id}, color_code='{self.color_code}', color_card='{self.color_card}', rgb=({self.red},{self.green},{self.blue}))>"

@@ -42,3 +42,36 @@ class FormulationResponse(FormulationBase):
 
     class Config:
         orm_mode = True
+
+# --- RGB Schemas ---
+
+class RgbColor(BaseModel):
+    r: int
+    g: int
+    b: int
+
+class ColorRgbValueBase(BaseModel):
+    color_code: str
+    color_card: str
+    red: int
+    green: int
+    blue: int
+
+class ColorRgbValueResponse(ColorRgbValueBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+# Updated Formulation Response to include RGB/HEX
+class FormulationResponseWithColor(FormulationBase):
+    id: int
+    colorant_details: List[ColorantDetailBase]
+    created_at: datetime
+    updated_at: datetime
+    color_rgb: Optional[dict] = None # Will contain {"rgb": RgbColor, "hex": str}
+
+    class Config:
+        orm_mode = True
