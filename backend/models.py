@@ -18,12 +18,12 @@ class Formulation(Base):
     __tablename__ = "formulations"
 
     id = Column(Integer, primary_key=True, index=True)
-    color_code = Column(String(50), unique=True, nullable=False)  # H
+    color_code = Column(String(50), nullable=False, index=True)  # H - Removed unique=True, added index
     colorant_type = Column(String(100), nullable=True)       # A
     color_series = Column(String(100), nullable=True)        # B
     color_card = Column(String(100), nullable=True)          # C
-    paint_type = Column(String(100), nullable=True)          # D
-    base_paint = Column(String(100), nullable=True)          # E
+    paint_type = Column(String(100), nullable=True, index=True) # D - Added index
+    base_paint = Column(String(100), nullable=True, index=True) # E - Added index
     packaging_spec = Column(String(100), nullable=True)      # G
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
@@ -33,8 +33,12 @@ class Formulation(Base):
                                     cascade="all, delete-orphan",
                                     lazy="selectin")  # Efficient loading strategy
 
+    __table_args__ = (
+        UniqueConstraint('color_code', 'paint_type', 'base_paint', name='uq_formulation_key'),
+    )
+
     def __repr__(self):
-        return f"<Formulation(id={self.id}, color_code='{self.color_code}')>"
+        return f"<Formulation(id={self.id}, color_code='{self.color_code}', paint_type='{self.paint_type}', base_paint='{self.base_paint}')>"
 
 class ColorantDetail(Base):
     __tablename__ = "colorant_details"

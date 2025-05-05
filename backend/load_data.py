@@ -1,16 +1,17 @@
 import csv
 import asyncio
 import logging
-from sqlalchemy import select, delete, update, insert
-from sqlalchemy.ext.asyncio import AsyncSession
+import os # Import os module
+from sqlalchemy import select, delete
 from database import async_session, init_db
 from models import Formulation, ColorantDetail
-from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-CSV_FILE_PATH = 'sekabiao16.csv'
+# Construct the absolute path to the CSV file relative to the script's location
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+CSV_FILE_PATH = os.path.join(SCRIPT_DIR, 'sekabiao16.csv')
 
 # Mapping based on the explanation provided
 COLUMN_MAP = {
@@ -40,10 +41,14 @@ async def load_data():
     await init_db()
     logger.info("Database schema initialized/verified.")
     
-    # Skip clearing existing data to avoid losing existing records
-
     async with async_session() as session:
         async with session.begin():  # Start a transaction
+            # Clear existing data
+            logger.info("Clearing existing data from colorant_details and formulations tables...")
+            await session.execute(delete(ColorantDetail))
+            await session.execute(delete(Formulation))
+            logger.info("Existing data cleared.")
+
             logger.info(f"Reading data from {CSV_FILE_PATH}...")
             processed_count = 0
             skipped_count = 0
@@ -60,7 +65,6 @@ async def load_data():
                         raise ValueError("CSV header is missing required 'H' column for color_code.")
 
                     batch_size = 100
-                    current_batch = []
                     batch_count = 0
 
                     for i, row in enumerate(reader):
@@ -74,21 +78,33 @@ async def load_data():
                             logger.warning(f"Row {row_num} has fewer columns ({len(row)}) than header ({len(header)}). Padding with empty strings.")
                             row.extend([''] * (len(header) - len(row)))
 
+                        # Extract potential unique key components from the row
                         color_code = row[HEADER_TO_INDEX['H']].strip()
+                        paint_type = row[HEADER_TO_INDEX['D']].strip()
+                        base_paint = row[HEADER_TO_INDEX['E']].strip()
+
                         if not color_code:
                             logger.warning(f"Skipping row {row_num} due to missing color_code.")
                             skipped_count += 1
                             continue
 
-                        # Check if formulation already exists
-                        existing_query = select(Formulation).filter(Formulation.color_code == color_code)
+                        # Check if formulation already exists based on the NEW composite key
+                        existing_query = select(Formulation).filter(
+                            Formulation.color_code == color_code,
+                            Formulation.paint_type == paint_type,
+                            Formulation.base_paint == base_paint
+                        )
                         result = await session.execute(existing_query)
                         existing_formulation = result.scalars().first()
                         
-                        # Prepare Formulation data
-                        formulation_data = {'color_code': color_code}
+                        # Prepare Formulation data (ensure key fields are included)
+                        formulation_data = {
+                            'color_code': color_code,
+                            'paint_type': paint_type,
+                            'base_paint': base_paint,
+                        }
                         for col_letter, field_name in COLUMN_MAP.items():
-                            if isinstance(field_name, str) and col_letter in HEADER_TO_INDEX:
+                            if isinstance(field_name, str) and field_name not in formulation_data and col_letter in HEADER_TO_INDEX:
                                 formulation_data[field_name] = row[HEADER_TO_INDEX[col_letter]].strip() or None
                             elif isinstance(field_name, dict):  # Skip colorant groups here
                                 pass
@@ -123,9 +139,11 @@ async def load_data():
                                     })
                         
                         if existing_formulation:
-                            # Update existing formulation
+                            # Update existing formulation (identified by the composite key)
+                            logger.info(f"Updating existing record for composite key: {color_code}, {paint_type}, {base_paint}")
                             for key, value in formulation_data.items():
-                                setattr(existing_formulation, key, value)
+                                if key not in ['color_code', 'paint_type', 'base_paint']:
+                                    setattr(existing_formulation, key, value)
                             
                             # Delete existing colorant details and create new ones
                             await session.execute(delete(ColorantDetail).where(
@@ -143,6 +161,7 @@ async def load_data():
                             updated_count += 1
                         else:
                             # Create new formulation
+                            logger.info(f"Inserting new record for composite key: {color_code}, {paint_type}, {base_paint}")
                             new_formulation = Formulation(**formulation_data)
                             new_formulation.colorant_details = [ColorantDetail(**detail) for detail in colorant_details]
                             session.add(new_formulation)
@@ -156,7 +175,7 @@ async def load_data():
 
                     # Final flush for any remaining records
                     await session.flush()
-                    logger.info(f"Processed final batch")
+                    logger.info("Processed final batch")
 
             except FileNotFoundError:
                 logger.error(f"Error: The file {CSV_FILE_PATH} was not found.")
