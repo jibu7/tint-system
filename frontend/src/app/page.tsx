@@ -26,8 +26,17 @@ export default function TestComponentsPage() {
   };
 
   const handlePackagingSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value) || 1;
-    setPackagingSize(Math.max(0.001, value)); // Ensure value is at least 0.001
+    const inputValue = e.target.value;
+    // Allow empty string for temporary state while typing
+    if (inputValue === '') {
+      setPackagingSize(0);
+      return;
+    }
+    const value = parseFloat(inputValue);
+    // Only enforce minimum when we have a valid number
+    if (!isNaN(value)) {
+      setPackagingSize(Math.max(0.001, value));
+    }
   };
 
   const handleSearch = async (e: React.FormEvent) => {
