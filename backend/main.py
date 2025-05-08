@@ -17,9 +17,9 @@ app = FastAPI(title="Color Code Search API (Relational)")
 
 # Configure CORS
 origins = [
-    "http://localhost:3000", # Default Next.js dev port
+    "http://localhost:3000",
     "http://127.0.0.1:3000",
-    # Add your deployed frontend URL here if applicable
+    "https://your-production-frontend-domain.com"  # Add your production domain
 ]
 
 app.add_middleware(

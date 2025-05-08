@@ -1,0 +1,13 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://your-render-app-name.onrender.com/api/$1"
+    }
+  ]
+}
