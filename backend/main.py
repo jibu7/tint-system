@@ -151,15 +151,20 @@ async def health_check():
     return {"status": "ok"}
 
 @app.get("/api/verify-models", tags=["Health"])
-async def verify_models():
-    """Test endpoint to verify model names against database tables"""
+async def verify_models(db: AsyncSession = Depends(get_session)): # Add db session dependency
+    """Test endpoint to verify model names against database tables using async engine"""
     try:
         from sqlalchemy import inspect
-        from database import engine_sync
-        
-        inspector = inspect(engine_sync)
-        tables = inspector.get_table_names()
-        
+        # Use the async engine via the session's connection
+        async with db.connection() as connection:
+            sync_conn = await connection.get_raw_connection() # Get the underlying sync connection if needed by inspect
+            
+            def get_tables_sync(conn):
+                inspector = inspect(conn)
+                return inspector.get_table_names()
+
+            tables = await connection.run_sync(get_tables_sync)
+
         expected_tables = ["formulations", "colorant_details", "colorants", "color_rgb_values"]
         missing_tables = [table for table in expected_tables if table not in tables]
         
@@ -177,6 +182,11 @@ async def verify_models():
             "status": "ok" if not missing_tables else "warning",
             "message": "All models verified" if not missing_tables else "Some tables missing",
             "details": model_info
+        }
+    except ImportError:
+        return {
+            "status": "error",
+            "message": "Could not import 'engine_sync'. This endpoint needs review for async compatibility or a sync engine instance."
         }
     except Exception as e:
         return {

@@ -11,7 +11,13 @@ async def test_connection():
         print("Error: DATABASE_URL not found in .env file or environment variables.")
         return
 
-    target_db_address = database_url.split('@')[-1]
+    # Adjust URL for direct asyncpg.connect if it contains +asyncpg
+    connect_url = database_url
+    if "postgresql+asyncpg://" in connect_url:
+        print("Adjusting DATABASE_URL for direct asyncpg.connect(): removing '+asyncpg'")
+        connect_url = connect_url.replace("postgresql+asyncpg://", "postgresql://")
+    
+    target_db_address = connect_url.split('@')[-1]
     print(f"Attempting to connect to: {target_db_address}") # Mask credentials for printing
 
     if ".neon.tech" in target_db_address:
@@ -23,7 +29,7 @@ async def test_connection():
 
     conn = None
     try:
-        conn = await asyncpg.connect(database_url)
+        conn = await asyncpg.connect(connect_url) # Use the potentially modified connect_url
         print("Successfully connected to the database!")
 
         # Option 1: Fetch current server time (always works)
