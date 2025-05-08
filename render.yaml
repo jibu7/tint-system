@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: tinting-system-api
+    env: python
+    rootDir: backend # Specifies that commands and paths are relative to the 'backend' directory
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn main:app -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:$PORT
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ENVIRONMENT
+        value: production
