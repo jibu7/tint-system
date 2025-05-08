@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from typing import List
+import os
 
 import models
 import schemas
@@ -19,8 +20,12 @@ app = FastAPI(title="Color Code Search API (Relational)")
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://your-production-frontend-domain.com"  # Add your production domain
 ]
+
+# Add production frontend URL if available
+production_frontend_url = os.getenv("FRONTEND_URL")
+if production_frontend_url:
+    origins.append(production_frontend_url)
 
 app.add_middleware(
     CORSMiddleware,
