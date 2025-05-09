@@ -29,9 +29,9 @@ if production_frontend_url:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # Temporarily allow all origins for debugging
     allow_credentials=True,
-    allow_methods=["GET"], # Only allow GET for this simple API
+    allow_methods=["GET", "OPTIONS"],  # Ensure OPTIONS is allowed for preflight
     allow_headers=["*"],
 )
 
