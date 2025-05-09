@@ -7,8 +7,9 @@ services:
     startCommand: gunicorn main:app -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:$PORT
     envVars:
       - key: DATABASE_URL
-        sync: false
-      - key: SECRET_KEY
+        sync: false      - key: SECRET_KEY
         generateValue: true
       - key: ENVIRONMENT
         value: production
+      - key: FRONTEND_URL
+        value: "https://your-frontend-url.vercel.app" # Replace with your actual frontend URL

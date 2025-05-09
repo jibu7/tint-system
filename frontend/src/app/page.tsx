@@ -5,7 +5,8 @@ import FormulationSelectionTable from '../../components/FormulationSelectionTabl
 import { IColorFormula } from '@/types/color';
 
 // API URL from environment variable or default
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// In production this should be the Render URL: https://tinting-system-api.onrender.com
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_VERCEL_URL || 'http://localhost:8000';
 
 export default function TestComponentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
