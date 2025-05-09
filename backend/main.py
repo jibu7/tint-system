@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import selectinload
+from sqlalchemy import text
 from typing import List
 import os
 
@@ -154,6 +154,17 @@ async def health_check():
     """Basic health check endpoint."""
     # Add DB connection check here if needed
     return {"status": "ok"}
+
+@app.get("/api/wakeup", tags=["Health"])
+async def wakeup_db(db: AsyncSession = Depends(get_session)):
+    """Pings the database to keep it awake."""
+    try:
+        async with db as session:
+            await session.execute(text("SELECT 1"))
+        return {"status": "db_woken_up"}
+    except Exception as e:
+        print(f"Error waking up DB: {str(e)}")
+        raise HTTPException(status_code=500, detail="Could not ping database")
 
 @app.get("/api/verify-models", tags=["Health"])
 async def verify_models(db: AsyncSession = Depends(get_session)): # Add db session dependency

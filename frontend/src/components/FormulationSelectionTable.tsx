@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IColorFormula } from '@/types/color';
 
 interface FormulationSelectionTableProps {
@@ -14,6 +14,10 @@ interface FilterOptions {
 
 export default function FormulationSelectionTable({ formulations, onSelect }: FormulationSelectionTableProps) {
   const [filters, setFilters] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    fetch('/api/wakeup');
+  }, []);
   
   // Extract unique values for each attribute to build filters
   const filterOptions = formulations.reduce<FilterOptions>((options, form) => {
