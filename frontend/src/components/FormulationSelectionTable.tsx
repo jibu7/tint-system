@@ -63,11 +63,10 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-100">
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Base Paint</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Paint Type</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Color</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Packaging</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Action</th>
+              <th className="px-2 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider">Base Paint</th>
+              <th className="px-2 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider">Paint Type</th>
+              <th className="px-2 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider">Color</th>
+              <th className="px-2 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider">Action</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -77,9 +76,9 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
                 className="hover:bg-blue-50 cursor-pointer"
                 onClick={() => onSelect(formulation)}
               >
-                <td className="px-6 py-3 text-base text-gray-800 whitespace-nowrap">{formulation.base_paint}</td>
-                <td className="px-6 py-3 text-base text-gray-800 whitespace-nowrap">{formulation.paint_type}</td>
-                <td className="px-6 py-3 whitespace-nowrap">
+                <td className="px-2 py-3 text-sm sm:text-base text-gray-800">{formulation.base_paint}</td>
+                <td className="px-2 py-3 text-sm sm:text-base text-gray-800">{formulation.paint_type}</td>
+                <td className="px-2 py-3">
                   {formulation.color_rgb?.hex ? (
                     <div 
                       className="w-6 h-6 rounded border border-gray-300"
@@ -93,10 +92,9 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
                     ></div>
                   )}
                 </td>
-                <td className="px-6 py-3 text-base text-gray-800 whitespace-nowrap">{formulation.packaging_spec}</td>
-                <td className="px-6 py-3 whitespace-nowrap">
+                <td className="px-2 py-3">
                   <button
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md text-sm shadow-sm"
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-xs sm:text-sm shadow-sm"
                     onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();
                       onSelect(formulation);

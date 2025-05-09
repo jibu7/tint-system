@@ -69,12 +69,11 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-100">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Base Paint</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Paint Type</th>
+              <th className="px-2 py-3 text-left text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wider">Base Paint</th>
+              <th className="px-2 py-3 text-left text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wider">Paint Type</th>
               {/* Replace Colorant Type with Color */}
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Color</th> 
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Packaging</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Action</th>
+              <th className="px-2 py-3 text-left text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wider">Color</th> 
+              <th className="px-2 py-3 text-left text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wider">Action</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -85,10 +84,10 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
                   className="hover:bg-blue-50 transition duration-150 ease-in-out cursor-pointer"
                   onClick={() => onSelect(formulation)}
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{formulation.base_paint}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{formulation.paint_type}</td>
+                  <td className="px-2 py-3 whitespace-nowrap text-sm sm:text-base text-gray-800">{formulation.base_paint}</td>
+                  <td className="px-2 py-3 whitespace-nowrap text-sm sm:text-base text-gray-800">{formulation.paint_type}</td>
                   {/* Display Color Swatch */}
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-2 py-3 whitespace-nowrap">
                     {formulation.color_rgb?.hex ? (
                       <div 
                         className="w-6 h-6 rounded border border-gray-300 inline-block align-middle"
@@ -99,10 +98,9 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
                       <span className="text-sm text-gray-500">N/A</span> // Fallback if no color
                     )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{formulation.packaging_spec}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-2 py-3 whitespace-nowrap">
                     <button
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md text-sm shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-xs sm:text-sm shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                       onClick={(e: React.MouseEvent) => {
                         e.stopPropagation(); // Prevent row click when button is clicked
                         onSelect(formulation);
@@ -116,7 +114,7 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
             ) : (
               // Display a message when no formulations match the filters
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
                   No formulations match the current filters.
                 </td>
               </tr>
