@@ -18,7 +18,7 @@ class ColorantDetailResponse(ColorantDetailBase):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Represents formulation data for creation
 class FormulationBase(BaseModel):
@@ -41,7 +41,7 @@ class FormulationResponse(FormulationBase):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # --- RGB Schemas ---
 
@@ -63,7 +63,7 @@ class ColorRgbValueResponse(ColorRgbValueBase):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Updated Formulation Response to include RGB/HEX
 class FormulationResponseWithColor(FormulationBase):
@@ -74,4 +74,4 @@ class FormulationResponseWithColor(FormulationBase):
     color_rgb: Optional[dict] = None # Will contain {"rgb": RgbColor, "hex": str}
 
     class Config:
-        orm_mode = True
+        from_attributes = True

@@ -160,15 +160,14 @@ async def verify_models(db: AsyncSession = Depends(get_session)): # Add db sessi
     """Test endpoint to verify model names against database tables using async engine"""
     try:
         from sqlalchemy import inspect
-        # Use the async engine via the session's connection
-        async with db.connection() as connection:
-            sync_conn = await connection.get_raw_connection() # Get the underlying sync connection if needed by inspect
-            
-            def get_tables_sync(conn):
-                inspector = inspect(conn)
-                return inspector.get_table_names()
-
-            tables = await connection.run_sync(get_tables_sync)
+        # Use db.run_sync for a safer approach with AsyncSession
+        
+        def get_tables_sync(conn):
+            inspector = inspect(conn)
+            return inspector.get_table_names()
+        
+        # Using run_sync on the session directly
+        tables = await db.run_sync(get_tables_sync)
 
         expected_tables = ["formulations", "colorant_details", "colorants", "color_rgb_values"]
         missing_tables = [table for table in expected_tables if table not in tables]
