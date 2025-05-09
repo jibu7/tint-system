@@ -6,7 +6,12 @@ import { IColorFormula } from '@/types/color';
 
 // API URL from environment variable or default
 // In production this should be the Render URL: https://tinting-system-api.onrender.com
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_VERCEL_URL || 'http://localhost:8000';
+
+// For Vercel deployment, if NEXT_PUBLIC_API_URL is not set,
+// an empty string for API_BASE_URL will result in relative API calls like /api/search/...
+// which will use Vercel's rewrite rules defined in vercel.json.
+// For local development, NEXT_PUBLIC_API_URL should be set in .env.local (e.g., to http://localhost:8000).
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NEXT_PUBLIC_VERCEL_URL ? '' : 'http://localhost:8000');
 
 export default function TestComponentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
