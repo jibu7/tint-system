@@ -163,8 +163,10 @@ async def wakeup_db(db: AsyncSession = Depends(get_session)):
             await session.execute(text("SELECT 1"))
         return {"status": "db_woken_up"}
     except Exception as e:
+        import traceback # Import traceback
         print(f"Error waking up DB: {str(e)}")
-        raise HTTPException(status_code=500, detail="Could not ping database")
+        print(traceback.format_exc()) # Print full traceback
+        raise HTTPException(status_code=500, detail=f"Could not ping database: {str(e)}")
 
 @app.get("/api/verify-models", tags=["Health"])
 async def verify_models(db: AsyncSession = Depends(get_session)): # Add db session dependency
