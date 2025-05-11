@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import FormulationSelectionTable from '../../components/FormulationSelectionTable';
+import PaintDroplet from '../../components/PaintDroplet';
 import { IColorFormula } from '@/types/color';
 
 // API URL from environment variable or default
@@ -240,56 +241,39 @@ export default function TestComponentsPage() {
                 </div>
                 {/* Add Color Swatch for mobile */}
                 {selectedFormulation.color_rgb?.hex && (
-                  <div className="mb-4">
-                    <div className="text-xs font-bold text-gray-600 uppercase mb-1">Color</div>
-                    <div 
-                      className="w-8 h-8 rounded border border-gray-300 inline-block"
-                      style={{ backgroundColor: selectedFormulation.color_rgb.hex }}
-                      title={`HEX: ${selectedFormulation.color_rgb.hex} | RGB: (${selectedFormulation.color_rgb.rgb.r}, ${selectedFormulation.color_rgb.rgb.g}, ${selectedFormulation.color_rgb.rgb.b})`}
-                    ></div>
-                  </div>
-                )}
-                <button 
-                  className="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-                >
-                  Select
-                </button>
+                  <div className="mb-4">                    <div className="text-xs font-bold text-gray-600 uppercase mb-1">Color</div>
+                    <PaintDroplet
+                      colorHex={selectedFormulation.color_rgb.hex}
+                      colorRGB={selectedFormulation.color_rgb.rgb}
+                      size="md"
+                    />
+                  </div>                )}
               </div>
               
               {/* Desktop view - table style for larger screens */}
               <div className="hidden sm:block bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-100">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Base Paint</th>
+                    <tr>                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Base Paint</th>
                       <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Paint Type</th>
                       {/* Add Color Header */}
                       <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Color</th>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr className="bg-white">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{selectedFormulation.base_paint}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{selectedFormulation.paint_type}</td>
-                      {/* Add Color Swatch cell */}
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      {/* Add Color Swatch cell */}                      <td className="px-6 py-4 whitespace-nowrap">
                         {selectedFormulation.color_rgb?.hex ? (
-                          <div 
-                            className="w-6 h-6 rounded border border-gray-300 inline-block"
-                            style={{ backgroundColor: selectedFormulation.color_rgb.hex }}
-                            title={`HEX: ${selectedFormulation.color_rgb.hex} | RGB: (${selectedFormulation.color_rgb.rgb.r}, ${selectedFormulation.color_rgb.rgb.g}, ${selectedFormulation.color_rgb.rgb.b})`}
-                          ></div>
+                          <PaintDroplet
+                            colorHex={selectedFormulation.color_rgb.hex}
+                            colorRGB={selectedFormulation.color_rgb.rgb}
+                            size="md"
+                          />
                         ) : (
                           <span className="text-sm text-gray-500">N/A</span> // Fallback if no color
                         )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <button 
-                          className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-                        >
-                          Select
-                        </button>
                       </td>
                     </tr>
                   </tbody>

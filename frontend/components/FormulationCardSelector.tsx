@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { IColorFormula } from '@/types/color';
+import PaintDroplet from './PaintDroplet';
 
 interface FormulationCardSelectorProps {
   formulations: IColorFormula[];
@@ -45,11 +46,9 @@ export default function FormulationCardSelector({ formulations, onSelect }: Form
                 className="border rounded-lg p-4 hover:shadow-md cursor-pointer transition-all hover:translate-y-[-4px]"
                 onClick={() => handleSelection('paint_type', type)}
               >
-                <h3 className="font-medium text-lg mb-2">{type}</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="font-medium text-lg mb-2">{type}</h3>                <p className="text-sm text-gray-600">
                   {`${formulations.filter(f => f.paint_type === type).length} options available`}
                 </p>
-                <button className="mt-3 text-sm text-blue-600">Select</button>
               </div>
             ))}
           </div>
@@ -64,9 +63,7 @@ export default function FormulationCardSelector({ formulations, onSelect }: Form
                 key={base}
                 className="border rounded-lg p-4 hover:shadow-md cursor-pointer transition-all hover:translate-y-[-4px]"
                 onClick={() => handleSelection('base_paint', base)}
-              >
-                <h3 className="font-medium text-lg">{base}</h3>
-                <button className="mt-3 text-sm text-blue-600">Select</button>
+              >              <h3 className="font-medium text-lg">{base}</h3>
               </div>
             ))}
           </div>
@@ -81,9 +78,7 @@ export default function FormulationCardSelector({ formulations, onSelect }: Form
                 key={colorant}
                 className="border rounded-lg p-4 hover:shadow-md cursor-pointer transition-all hover:translate-y-[-4px]"
                 onClick={() => handleSelection('colorant_type', colorant)}
-              >
-                <h3 className="font-medium text-lg">{colorant}</h3>
-                <button className="mt-3 text-sm text-blue-600">Select</button>
+              >              <h3 className="font-medium text-lg">{colorant}</h3>
               </div>
             ))}
           </div>
@@ -92,23 +87,27 @@ export default function FormulationCardSelector({ formulations, onSelect }: Form
       case 3: // Final selection with all details
         return (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {filteredFormulations.map((formulation) => (
-              <div key={formulation.id} className="border rounded-lg p-5 flex flex-col h-full">
+            {filteredFormulations.map((formulation) => (              <div 
+                key={formulation.id} 
+                className="border rounded-lg p-5 flex flex-col h-full hover:shadow-md cursor-pointer transition-all hover:translate-y-[-4px]"
+                onClick={() => onSelect(formulation)}
+              >
                 <h3 className="font-bold text-lg mb-2 text-blue-700">
                   {formulation.color_code} - {formulation.base_paint}
-                </h3>
-                <div className="mb-4">
+                </h3>                <div className="mb-4">
                   <div className="mb-1"><span className="font-medium">Paint Type:</span> {formulation.paint_type}</div>
                   <div className="mb-1"><span className="font-medium">Colorant:</span> {formulation.colorant_type}</div>
                   <div className="mb-1"><span className="font-medium">Packaging:</span> {formulation.packaging_spec}</div>
-                </div>
-                <div className="mt-auto">
-                  <button
-                    className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
-                    onClick={() => onSelect(formulation)}
-                  >
-                    Select This Formula
-                  </button>
+                  {formulation.color_rgb?.hex && (
+                    <div className="mt-3 flex items-center">
+                      <span className="font-medium mr-2">Color:</span>
+                      <PaintDroplet 
+                        colorHex={formulation.color_rgb.hex}
+                        colorRGB={formulation.color_rgb.rgb}
+                        size="md"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
