@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import FormulationSelectionTable from '../components/FormulationSelectionTable';
 import { useRouter } from 'next/router';
 import { IColorFormula } from '@/types/color';
@@ -10,6 +10,32 @@ interface SearchResultsProps {
 
 export default function SearchResults({ results = [] }: SearchResultsProps) {
   const router = useRouter();
+
+  // Wake up the database as soon as the search results page loads
+  useEffect(() => {
+    const wakeUpDatabase = async () => {
+      try {
+        console.log('Search Results: Sending database wake-up call...');
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const response = await fetch(`${baseUrl}/api/wakeup`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (response.ok) {
+          console.log('Database wake-up successful from search results page');
+        } else {
+          console.warn('Database wake-up returned non-200 status:', response.status);
+        }
+      } catch (error) {
+        console.error('Failed to wake up database from search results page:', error);
+      }
+    };
+
+    wakeUpDatabase();
+  }, []);
 
   // For demo/example purposes
   const searchResults = results.length > 0 ? results : [
@@ -126,7 +152,22 @@ export async function getServerSideProps(context: {query: {colorCode?: string}})
   }
 
   try {
-    const res = await fetch(`http://localhost:8000/api/search/${colorCode}`);
+    // First, wake up the database before performing any search
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    const wakeupUrl = `${baseUrl}/api/wakeup`;
+    
+    try {
+      // Send wake-up call to the database
+      console.log('SSR: Sending database wake-up call...');
+      await fetch(wakeupUrl);
+      console.log('SSR: Database wake-up call completed');
+    } catch (wakeupError) {
+      console.error('SSR: Failed to wake up database:', wakeupError);
+      // Continue even if wake-up fails
+    }
+    
+    // Then perform the actual search
+    const res = await fetch(`${baseUrl}/api/search/${colorCode}`);
     const results = await res.json();
 
     return {

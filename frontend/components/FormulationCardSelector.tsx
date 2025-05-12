@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IColorFormula } from '@/types/color';
 import PaintDroplet from './PaintDroplet';
 
@@ -13,6 +13,35 @@ export default function FormulationCardSelector({ formulations, onSelect }: Form
   const [activeStep, setActiveStep] = useState(0);
   const [filteredFormulations, setFilteredFormulations] = useState<IColorFormula[]>(formulations);
   const [selections, setSelections] = useState<Record<string, string>>({});
+
+  // Wake up the database when the component mounts
+  useEffect(() => {
+    const wakeUpDatabase = async () => {
+      try {
+        console.log('Sending database wake-up call...');
+        // Determine the base API URL based on the environment
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const response = await fetch(`${baseUrl}/api/wakeup`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (response.ok) {
+          console.log('Database wake-up successful');
+        } else {
+          console.warn('Database wake-up returned non-200 status:', response.status);
+        }
+      } catch (error) {
+        console.error('Failed to wake up database:', error);
+        // We don't want to block the UI if the wake-up fails
+      }
+    };
+
+    // Call the wake-up function immediately when component mounts
+    wakeUpDatabase();
+  }, []);
 
   // Determine selection steps dynamically based on available attributes
   const steps = ['Paint Type', 'Base Paint', 'Colorant Type', 'Final Selection'];
