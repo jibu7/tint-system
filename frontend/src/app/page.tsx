@@ -253,9 +253,9 @@ export default function TestComponentsPage() {
               <div className="hidden sm:block bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-100">
-                    <tr>                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Base Paint</th>
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Base Paint</th>
                       <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Paint Type</th>
-                      {/* Add Color Header */}
                       <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Color</th>
                     </tr>
                   </thead>
@@ -263,7 +263,7 @@ export default function TestComponentsPage() {
                     <tr className="bg-white">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{selectedFormulation.base_paint}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{selectedFormulation.paint_type}</td>
-                      {/* Add Color Swatch cell */}                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         {selectedFormulation.color_rgb?.hex ? (
                           <PaintDroplet
                             colorHex={selectedFormulation.color_rgb.hex}
@@ -271,7 +271,7 @@ export default function TestComponentsPage() {
                             size="md"
                           />
                         ) : (
-                          <span className="text-sm text-gray-500">N/A</span> // Fallback if no color
+                          <span className="text-sm text-gray-500">N/A</span>
                         )}
                       </td>
                     </tr>
