@@ -61,8 +61,8 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
               ))}
             </select>
           </div>
-        ))}
-      </div>      {filteredFormulations.length > 0 ? (
+        ))}      </div>      
+      {filteredFormulations.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {filteredFormulations.map((formulation) => (
             <div 
@@ -94,10 +94,12 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
               </div>
             </div>
           ))}
-            ))}
-          </tbody>
-        </table>
-      </div>
+        </div>
+      ) : (
+        <div className="text-center py-8 text-gray-500">
+          No formulations found matching the selected filters
+        </div>
+      )}
     </div>
   );
 }
