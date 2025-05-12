@@ -57,44 +57,49 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
                 className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-gray-800 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition duration-150 ease-in-out"
               >
                 <option value="">All</option>
-                {Array.from(values).sort().map(value => (
+                {Array.from(values).sort().map(value => ( // Sort values alphabetically
                   <option key={value} value={value}>{value}</option>
                 ))}
               </select>
             </div>
           ))}
         </div>
-      )}
-
-      {filteredFormulations.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+      )}      {filteredFormulations.length > 0 ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {filteredFormulations.map((formulation) => (
             <div 
               key={formulation.id}
+              className="border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition duration-200 cursor-pointer"
               onClick={() => onSelect(formulation)}
-              className="flex flex-col items-center p-4 hover:bg-gray-50 rounded-lg transition duration-150 ease-in-out cursor-pointer group"
             >
-              <div className="mb-3 transform group-hover:scale-105 transition duration-150">
-                <PaintDroplet 
-                  colorHex={formulation.color_rgb?.hex || '#CCCCCC'}
-                  colorRGB={formulation.color_rgb?.rgb}
-                  size="lg"
-                />
+              <div className="p-4 flex justify-center">
+                {formulation.color_rgb?.hex ? (
+                  <PaintDroplet 
+                    colorHex={formulation.color_rgb.hex}
+                    colorRGB={formulation.color_rgb.rgb}
+                    size="lg"
+                  />
+                ) : (
+                  <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
+                    <span className="text-gray-500 text-sm">No color</span>
+                  </div>
+                )}
               </div>
-              <div className="text-center">
-                <h3 className="font-medium text-gray-900">
+              
+              <div className="px-4 py-3 border-t border-gray-100 bg-gray-50">
+                <div className="font-medium text-center text-gray-800">
                   {formulation.color_code || 'Unknown'}
-                </h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  {formulation.paint_type}
-                </p>
+                </div>
+                <div className="mt-1 text-sm text-center text-gray-500">
+                  {formulation.base_paint}
+                </div>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 bg-white border border-gray-200 rounded-lg">
-          <p className="text-gray-500">No formulations match the current filters.</p>
+        <div className="py-12 text-center text-gray-500 bg-white border border-gray-200 rounded-lg">
+          No formulations match the current filters.
         </div>
       )}
     </div>

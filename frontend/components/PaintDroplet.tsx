@@ -27,16 +27,15 @@ export default function PaintDroplet({
   };
 
   // Generate a random shape variation (but consistent for the same color)
-  // This creates slight variation in droplet shapes like in your reference image
   const colorSum = colorRGB ? colorRGB.r + colorRGB.g + colorRGB.b : 0;
   const shapeVariation = {
     borderRadius: [
-      '70% 60% 70% 60% / 60% 65% 70% 65%',
-      '65% 75% 60% 65% / 70% 60% 70% 60%',
-      '60% 60% 75% 65% / 60% 70% 60% 75%',
-      '70% 65% 60% 75% / 65% 70% 75% 60%'
+      '75% 65% 70% 70% / 65% 70% 65% 70%',
+      '70% 75% 65% 70% / 70% 65% 75% 65%',
+      '65% 70% 75% 65% / 75% 70% 65% 70%',
+      '70% 65% 70% 75% / 70% 75% 70% 65%'
     ][colorSum % 4],
-    rotation: ['-10deg', '-20deg', '-15deg', '-25deg'][colorSum % 4]
+    rotation: ['-12deg', '-18deg', '-15deg', '-20deg'][colorSum % 4]
   };
   
   // Generate title tooltip with color information
@@ -44,58 +43,140 @@ export default function PaintDroplet({
     ? `HEX: ${colorHex} | RGB: (${colorRGB.r}, ${colorRGB.g}, ${colorRGB.b})`
     : `HEX: ${colorHex}`;
 
+  // Calculate darker shade for bottom shadow
+  const darkenColor = (hex: string, amount: number) => {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const r = Math.max(0, (num >> 16) - amount);
+    const g = Math.max(0, ((num >> 8) & 0xff) - amount);
+    const b = Math.max(0, (num & 0xff) - amount);
+    return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
+  };
+
   return (
     <div 
       className={`relative inline-block ${sizeClasses[size]} ${className}`}
       title={colorTitle}
     >
+      {/* Shadow underneath */}
+      <div
+        className="absolute bottom-0 w-full h-1/2 blur-sm opacity-40"
+        style={{
+          background: `radial-gradient(ellipse at center, ${darkenColor(colorHex, 60)} 0%, transparent 70%)`
+        }}
+      />
+
       {/* Main droplet shape with paint-specific variations */}
       <div
-        className="absolute inset-0 rounded-full overflow-hidden"
+        className="absolute inset-0"
         style={{
           borderRadius: shapeVariation.borderRadius,
-          backgroundColor: colorHex,
           transform: `rotate(${shapeVariation.rotation})`,
-          boxShadow: 'inset 0 0 15px rgba(255, 255, 255, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2)'
+          background: `linear-gradient(135deg, 
+            ${darkenColor(colorHex, 20)} 0%,
+            ${colorHex} 50%,
+            ${darkenColor(colorHex, 10)} 100%
+          )`,
+          boxShadow: `
+            inset 0 0 20px rgba(255, 255, 255, 0.4),
+            inset 0 0 10px rgba(255, 255, 255, 0.2),
+            0 4px 8px rgba(0, 0, 0, 0.15),
+            0 1px 3px rgba(0, 0, 0, 0.3)
+          `,
+          overflow: 'hidden'
         }}
       >
-        {/* Glossy highlight effect - larger curved highlight */}
+        {/* Main highlight gradient */}
         <div
           className="absolute"
           style={{
-            width: '80%',
-            height: '40%',
-            backgroundColor: 'rgba(255, 255, 255, 0.4)',
-            borderRadius: '100%',
-            top: '10%',
-            left: '10%',
-            transform: 'rotate(10deg)',
+            width: '120%',
+            height: '120%',
+            top: '-30%',
+            left: '-10%',
+            background: `
+              radial-gradient(
+                ellipse at center,
+                rgba(255, 255, 255, 0.5) 0%,
+                rgba(255, 255, 255, 0.2) 40%,
+                transparent 70%
+              )
+            `,
+            transform: 'rotate(-20deg)',
+            filter: 'blur(3px)',
+            mixBlendMode: 'soft-light'
+          }}
+        />
+
+        {/* Glossy highlight effect - curved highlight */}
+        <div
+          className="absolute"
+          style={{
+            width: '70%',
+            height: '30%',
+            background: `
+              linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0.7) 0%,
+                rgba(255, 255, 255, 0.3) 100%
+              )
+            `,
+            borderRadius: '50%',
+            top: '15%',
+            left: '15%',
+            transform: 'rotate(5deg) skew(-15deg)',
             filter: 'blur(2px)'
           }}
-        ></div>
-        
-        {/* Small highlight dot */}
+        />
+
+        {/* Small bright highlight */}
         <div
           className="absolute"
           style={{
-            width: '15%',
-            height: '15%',
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            borderRadius: '100%',
-            top: '15%',
-            left: '20%',
+            width: '12%',
+            height: '12%',
+            background: `
+              radial-gradient(
+                circle at center,
+                rgba(255, 255, 255, 0.9) 0%,
+                rgba(255, 255, 255, 0.6) 60%,
+                transparent 100%
+              )
+            `,
+            borderRadius: '50%',
+            top: '20%',
+            left: '25%'
           }}
-        ></div>
-        
-        {/* Edge highlight for a more 3D effect */}
+        />
+
+        {/* Bottom shadow gradient */}
+        <div
+          className="absolute bottom-0 w-full h-1/2"
+          style={{
+            background: `
+              linear-gradient(
+                to bottom,
+                transparent 0%,
+                rgba(0, 0, 0, 0.1) 100%
+              )
+            `
+          }}
+        />
+
+        {/* Edge reflection */}
         <div
           className="absolute inset-0"
           style={{
             borderRadius: shapeVariation.borderRadius,
-            boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.2)',
-            opacity: 0.7
+            background: `
+              linear-gradient(
+                135deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 100%
+              )
+            `
           }}
-        ></div>
+        />
       </div>
     </div>
   );
