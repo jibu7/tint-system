@@ -67,25 +67,26 @@ export default function SearchResults({ results = [] }: SearchResultsProps) {
         <h1 className="text-2xl font-bold mb-4">
           One formula found for color code {searchResults[0].color_code}
         </h1>
-          <div className="mt-8">
+        <div className="mt-8">
           <div 
             className="border rounded-lg p-5 hover:shadow-md cursor-pointer transition-all hover:border-blue-500"
             onClick={() => handleFormulationSelect(searchResults[0])}
           >
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-medium mb-2">Base Paint: {searchResults[0].base_paint}</div>
+                <div className="text-xl font-medium mb-2">Base Paint: {searchResults[0].base_paint}</div>
                 <div className="text-gray-600">Paint Type: {searchResults[0].paint_type}</div>
+                <div className="text-gray-600 mt-1">Colorant Type: {searchResults[0].colorant_type}</div>
               </div>
               {searchResults[0].color_rgb?.hex && (
                 <PaintDroplet 
                   colorHex={searchResults[0].color_rgb.hex}
                   colorRGB={searchResults[0].color_rgb.rgb}
-                  size="md"
+                  size="lg"
                 />
               )}
             </div>
-            <div className="mt-3 text-sm text-blue-600">Click to view details</div>
+            <div className="mt-3 text-sm text-blue-600">Click to view full details</div>
           </div>
         </div>
       </div>

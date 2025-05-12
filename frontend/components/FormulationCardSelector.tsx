@@ -87,27 +87,33 @@ export default function FormulationCardSelector({ formulations, onSelect }: Form
       case 3: // Final selection with all details
         return (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {filteredFormulations.map((formulation) => (              <div 
+            {filteredFormulations.map((formulation) => (
+              <div 
                 key={formulation.id} 
                 className="border rounded-lg p-5 flex flex-col h-full hover:shadow-md cursor-pointer transition-all hover:translate-y-[-4px]"
                 onClick={() => onSelect(formulation)}
               >
-                <h3 className="font-bold text-lg mb-2 text-blue-700">
-                  {formulation.color_code} - {formulation.base_paint}
-                </h3>                <div className="mb-4">
-                  <div className="mb-1"><span className="font-medium">Paint Type:</span> {formulation.paint_type}</div>
-                  <div className="mb-1"><span className="font-medium">Colorant:</span> {formulation.colorant_type}</div>
-                  <div className="mb-1"><span className="font-medium">Packaging:</span> {formulation.packaging_spec}</div>
-                  {formulation.color_rgb?.hex && (
-                    <div className="mt-3 flex items-center">
-                      <span className="font-medium mr-2">Color:</span>
-                      <PaintDroplet 
-                        colorHex={formulation.color_rgb.hex}
-                        colorRGB={formulation.color_rgb.rgb}
-                        size="md"
-                      />
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="font-bold text-lg text-blue-700">
+                      {formulation.color_code}
+                    </h3>
+                    <div className="text-lg font-medium text-gray-800 mt-1">
+                      Base: {formulation.base_paint}
                     </div>
+                  </div>
+                  {formulation.color_rgb?.hex && (
+                    <PaintDroplet 
+                      colorHex={formulation.color_rgb.hex}
+                      colorRGB={formulation.color_rgb.rgb}
+                      size="lg"
+                    />
                   )}
+                </div>
+                <div className="space-y-2">
+                  <div><span className="font-medium">Paint Type:</span> {formulation.paint_type}</div>
+                  <div><span className="font-medium">Colorant:</span> {formulation.colorant_type}</div>
+                  <div><span className="font-medium">Packaging:</span> {formulation.packaging_spec}</div>
                 </div>
               </div>
             ))}

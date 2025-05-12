@@ -72,7 +72,7 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
             <div 
               key={formulation.id}
               onClick={() => onSelect(formulation)}
-              className="flex flex-col items-center p-4 hover:bg-gray-50 rounded-lg transition duration-150 ease-in-out cursor-pointer group"
+              className="flex flex-col items-center p-4 hover:bg-gray-50 rounded-lg transition duration-150 ease-in-out cursor-pointer group border border-gray-200"
             >
               <div className="mb-3 transform group-hover:scale-105 transition duration-150">
                 <PaintDroplet 
@@ -85,6 +85,9 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
                 <h3 className="font-medium text-gray-900">
                   {formulation.color_code || 'Unknown'}
                 </h3>
+                <p className="text-sm font-medium text-blue-600 mt-1">
+                  {formulation.base_paint}
+                </p>
                 <p className="text-sm text-gray-500 mt-1">
                   {formulation.paint_type}
                 </p>
