@@ -30,13 +30,12 @@ export default function TestComponentsPage() {
     setTimeout(() => {
       document.getElementById('selection-results')?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
-  };
-
-  const handlePackagingSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  };  const handlePackagingSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
-    // Allow empty string for temporary state while typing
     if (inputValue === '') {
-      setPackagingSize(0);
+      // Keep field empty but use 1 as multiplier for calculations
+      setPackagingSize(1);
+      e.target.value = ''; // Ensure field stays empty
       return;
     }
     const value = parseFloat(inputValue);
@@ -204,11 +203,11 @@ export default function TestComponentsPage() {
                   Packaging Size (L):
                 </label>
                 <input
-                  id="packagingSize"
-                  type="number"
+                  id="packagingSize"                  type="number"
                   min="0.001"
                   step="0.001"
-                  value={packagingSize}
+                  defaultValue=""
+                  placeholder="1"
                   onChange={handlePackagingSizeChange}
                   className="w-24 px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
                 />
