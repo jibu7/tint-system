@@ -65,8 +65,16 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
 
       <div className="overflow-x-auto border border-gray-300 rounded-lg shadow-sm">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-100"><tr><th className="px-2 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider">Base Paint</th><th className="px-2 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider">Paint Type</th><th className="px-2 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider">Color</th><th className="px-2 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider">Action</th></tr></thead>
-          <tbody className="bg-white divide-y divide-gray-200">{filteredFormulations.map((formulation) => (<tr key={formulation.id} className="hover:bg-blue-50 cursor-pointer" onClick={() => onSelect(formulation)}><td className="px-2 py-3 text-sm sm:text-base text-gray-800">{formulation.base_paint}</td><td className="px-2 py-3 text-sm sm:text-base text-gray-800">{formulation.paint_type}</td><td className="px-2 py-3">{formulation.color_rgb?.hex ? (<div className="w-6 h-6 rounded border border-gray-300" style={{ backgroundColor: formulation.color_rgb.hex }} title={`HEX: ${formulation.color_rgb.hex} | RGB: (${formulation.color_rgb.rgb.r}, ${formulation.color_rgb.rgb.g}, ${formulation.color_rgb.rgb.b})`}></div>) : (<div className="w-6 h-6 rounded border border-gray-300 bg-gray-200" title="Color data not available"></div>)}</td><td className="px-2 py-3"><button className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-xs sm:text-sm shadow-sm" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onSelect(formulation); }}>Select</button></td></tr>))}</tbody>
+          <thead className="bg-gray-100">
+            <tr><th className="px-2 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider">Base Paint</th><th className="px-2 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider">Paint Type</th><th className="px-2 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider">Color</th><th className="px-2 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider">Action</th></tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredFormulations.map((formulation) => (
+              <tr key={formulation.id} className="hover:bg-blue-50 cursor-pointer" onClick={() => onSelect(formulation)}>
+                <td className="px-2 py-3 text-sm sm:text-base text-gray-800">{formulation.base_paint}</td><td className="px-2 py-3 text-sm sm:text-base text-gray-800">{formulation.paint_type}</td><td className="px-2 py-3">{formulation.color_rgb?.hex ? (<div className="w-6 h-6 rounded border border-gray-300" style={{ backgroundColor: formulation.color_rgb.hex }} title={`HEX: ${formulation.color_rgb.hex} | RGB: (${formulation.color_rgb.rgb.r}, ${formulation.color_rgb.rgb.g}, ${formulation.color_rgb.rgb.b})`}></div>) : (<div className="w-6 h-6 rounded border border-gray-300 bg-gray-200" title="Color data not available"></div>)}</td><td className="px-2 py-3"><button className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-xs sm:text-sm shadow-sm" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onSelect(formulation); }}>Select</button></td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
     </div>
