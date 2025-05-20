@@ -1,0 +1,28 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Depends
+
+from database import get_session, init_db
+
+# FastAPI instance
+app = FastAPI(title="Paint Formulation API")
+
+# Basic CORS configuration for development
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"]
+)
+
+# Initialize database on startup
+@app.on_event("startup")
+async def startup_event():
+    await init_db()
+
+@app.get("/")
+async def read_root():
+    return {"message": "Paint Tinting System API - Under Reconstruction"}
