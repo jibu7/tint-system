@@ -70,7 +70,7 @@ export default function FormulationSelectionTable({ formulations, onSelect }: Fo
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {filteredFormulations.map((formulation) => (
             <div 
-              key={formulation.id}
+              key={`${formulation.color_code}-${formulation.paint_type}-${formulation.base_paint}`}
               onClick={() => onSelect(formulation)}
               className="flex flex-col items-center p-4 hover:bg-gray-50 rounded-lg transition duration-150 ease-in-out cursor-pointer group border border-gray-200"
             >

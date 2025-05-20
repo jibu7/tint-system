@@ -1,5 +1,6 @@
 from sqlalchemy import (
-    Column, String, Float, Integer, ForeignKey, Index, UniqueConstraint, TIMESTAMP, Numeric
+    Column, String, Float, Integer, ForeignKey, Index, UniqueConstraint, 
+    TIMESTAMP, Numeric, ForeignKeyConstraint
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -17,14 +18,16 @@ class Colorant(Base):
 class Formulation(Base):
     __tablename__ = "formulations"
 
-    id = Column(Integer, primary_key=True, index=True)
-    color_code = Column(String(50), nullable=False, index=True)  # H - Removed unique=True, added index
-    colorant_type = Column(String(100), nullable=True)       # A
-    color_series = Column(String(100), nullable=True)        # B
-    color_card = Column(String(100), nullable=True)          # C
-    paint_type = Column(String(100), nullable=True, index=True) # D - Added index
-    base_paint = Column(String(100), nullable=True, index=True) # E - Added index
-    packaging_spec = Column(String(100), nullable=True)      # G
+    # Instead of a single primary key, we'll use a composite primary key
+    color_code = Column(String(50), nullable=False, primary_key=True)      # H
+    color_card = Column(String(100), nullable=False, primary_key=True)     # C
+    paint_type = Column(String(100), nullable=False, primary_key=True)     # D
+    base_paint = Column(String(100), nullable=False, primary_key=True)     # E
+    packaging_spec = Column(String(100), nullable=False, primary_key=True) # G
+
+    # Other non-key columns
+    colorant_type = Column(String(100), nullable=False)      # A
+    color_series = Column(String(100), nullable=False)       # B
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
@@ -33,8 +36,10 @@ class Formulation(Base):
                                     cascade="all, delete-orphan",
                                     lazy="selectin")  # Efficient loading strategy
 
+    # Create indexes for better query performance
     __table_args__ = (
-        UniqueConstraint('color_code', 'paint_type', 'base_paint', name='uq_formulation_key'),
+        Index('idx_formulation_search', color_code, paint_type, base_paint),
+        Index('idx_color_card', color_card),
     )
 
     def __repr__(self):
@@ -43,23 +48,35 @@ class Formulation(Base):
 class ColorantDetail(Base):
     __tablename__ = "colorant_details"
 
-    id = Column(Integer, primary_key=True, index=True)
-    formulation_id = Column(Integer, ForeignKey("formulations.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(Integer, primary_key=True)
+    # Reference to the parent formulation using composite foreign key
+    color_code = Column(String(50), nullable=False)
+    color_card = Column(String(100), nullable=False)
+    paint_type = Column(String(100), nullable=False)
+    base_paint = Column(String(100), nullable=False)
+    packaging_spec = Column(String(100), nullable=False)
+    
     colorant_name = Column(String(100), nullable=False)
     weight_g = Column(Numeric(12, 7), nullable=True)
     volume_ml = Column(Numeric(12, 7), nullable=True)
-    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
-    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
     formulation = relationship("Formulation", back_populates="colorant_details")
 
     __table_args__ = (
-        UniqueConstraint('formulation_id', 'colorant_name', name='colorant_details_formulation_id_colorant_name_key'),
-        Index('idx_colorant_details_formulation_id', 'formulation_id'),
+        ForeignKeyConstraint(
+            ['color_code', 'color_card', 'paint_type', 'base_paint', 'packaging_spec'],
+            ['formulations.color_code', 'formulations.color_card', 
+             'formulations.paint_type', 'formulations.base_paint',
+             'formulations.packaging_spec'],
+            ondelete="CASCADE"
+        ),
+        Index('idx_colorant_formulation', color_code, color_card, paint_type, base_paint, packaging_spec),
     )
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
     def __repr__(self):
-        return f"<ColorantDetail(formulation_id={self.formulation_id}, colorant_name='{self.colorant_name}', weight={self.weight_g}g)>"
+        return f"<ColorantDetail(color_code='{self.color_code}', colorant_name='{self.colorant_name}', weight={self.weight_g}g)>"
 
 class ColorRgbValue(Base):
     __tablename__ = "color_rgb_values"

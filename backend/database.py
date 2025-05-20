@@ -1,6 +1,7 @@
 import os
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.ext.asyncio import async_sessionmaker
 from dotenv import load_dotenv
 
 load_dotenv()  # Load variables from .env file
@@ -50,6 +51,6 @@ async def get_session() -> AsyncSession:
 # Function to create database tables
 async def init_db():
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)  # Use ONLY for resetting during dev
+        # Create tables if they don't exist
         await conn.run_sync(Base.metadata.create_all)
     print("Database tables created or verified.")

@@ -6,7 +6,7 @@ import PaintDroplet from '@/components/PaintDroplet';
 import { IColorFormula } from '@/types/color';
 
 // API URL from environment variable or default
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NEXT_PUBLIC_VERCEL_URL ? '' : 'http://localhost:8001');
 
 export default function TestComponentsPage() {
   const [searchTerm, setSearchTerm] = useState('');

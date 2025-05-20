@@ -7,7 +7,6 @@ export interface IColorantDetail {
 }
 
 export interface IColorFormula {
-  id: number;
   color_code: string;
   colorant_type?: string;
   color_series?: string;
@@ -20,7 +19,7 @@ export interface IColorFormula {
     rgb: { r: number; g: number; b: number };
     hex: string;
   } | null;
-  [key: string]: string | number | boolean | undefined | IColorantDetail[] | object | null;
+  [key: string]: string | boolean | undefined | IColorantDetail[] | object | null;
 }
 
 export interface IApiError {
