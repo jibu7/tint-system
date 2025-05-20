@@ -81,9 +81,8 @@ class ColorantDetail(Base):
 class ColorRgbValue(Base):
     __tablename__ = "color_rgb_values"
 
-    id = Column(Integer, primary_key=True, index=True)
-    color_code = Column(String(50), nullable=False)
-    color_card = Column(String(50), nullable=False)
+    color_code = Column(String(50), primary_key=True)
+    color_card = Column(String(50), primary_key=True)
     red = Column(Integer, nullable=False)
     green = Column(Integer, nullable=False)
     blue = Column(Integer, nullable=False)
@@ -91,8 +90,7 @@ class ColorRgbValue(Base):
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
     __table_args__ = (
-        UniqueConstraint('color_code', 'color_card', name='color_rgb_values_color_code_card_key'),
-        Index('idx_color_rgb_values_code_card', 'color_code', 'color_card'), # Add index for faster lookups
+        Index('idx_color_rgb_values_code_card', 'color_code', 'color_card'),  # Add index for faster lookups
     )
 
     def __repr__(self):

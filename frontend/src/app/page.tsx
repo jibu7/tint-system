@@ -12,7 +12,7 @@ import { IColorFormula } from '@/types/color';
 // an empty string for API_BASE_URL will result in relative API calls like /api/search/...
 // which will use Vercel's rewrite rules defined in vercel.json.
 // For local development, NEXT_PUBLIC_API_URL should be set in .env.local (e.g., to http://localhost:8000).
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NEXT_PUBLIC_VERCEL_URL ? '' : 'http://localhost:8001');
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NEXT_PUBLIC_VERCEL_URL ? '' : 'http://localhost:8000');
 
 export default function TestComponentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -82,11 +82,13 @@ export default function TestComponentsPage() {
         }
       } else {
         const data = await response.json();
-        setSearchResults(data);
+        setSearchResults(data); // Assuming this endpoint returns an array
 
         if (data.length === 1) {
           // Auto-select if only one result
           setSelectedFormulation(data[0]);
+        } else if (data.length === 0) {
+           setError(`No formulations found for color code "${searchTerm}"`);
         }
       }
     } catch (err) {
@@ -99,52 +101,6 @@ export default function TestComponentsPage() {
       setSearchResults([]);
     } finally {
       setIsLoading(false);
-      // Scroll to results
-      setTimeout(() => {
-        document.getElementById('search-results')?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    }
-
-    try {
-      // Call backend API to search for the color code
-      const encodedTerm = encodeURIComponent(searchTerm.trim());
-      const url = `${API_BASE_URL}/api/search/${encodedTerm}`;
-      console.log('Fetching from:', url);
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' },
-        mode: 'cors',
-      });
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          setSearchResults([]);
-          setError(`No formulations found for color code "${searchTerm}"`);
-        } else {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-      } else {
-        const data = await response.json();
-
-        // Handle both single result or array of results
-        const formulations = Array.isArray(data) ? data : [data];
-        setSearchResults(formulations);
-
-        if (formulations.length === 0) {
-          setError(`No formulations found for color code "${searchTerm}"`);
-        } else if (formulations.length === 1) {
-          // Auto-select if only one result
-          setSelectedFormulation(formulations[0]);
-        }
-      }
-    } catch (err) {
-      console.error('Search failed:', err);
-      setError(`Failed to search: ${err instanceof Error ? err.message : 'Unknown error'}`);
-      setSearchResults([]);
-    } finally {
-      setIsLoading(false);
-
       // Scroll to results
       setTimeout(() => {
         document.getElementById('search-results')?.scrollIntoView({ behavior: 'smooth' });
